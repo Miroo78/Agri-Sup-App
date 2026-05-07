@@ -1,0 +1,101 @@
+date,etat,parcelle_id,commentaire
+2026-03-02,OK,2,Sol sec
+2026-03-15,Risque maladie,3,Sol sec
+2026-04-17,OK,8,Sol sec
+2026-03-02,Stress hydrique,8,Sol sec
+2026-03-30,Stress hydrique,9,Sol sec
+2026-03-11,OK,3,Humidité élevée
+2026-03-09,Maladie détectée,2,Humidité élevée
+2026-04-28,OK,10,Humidité élevée
+2026-03-08,Stress hydrique,9,Feuilles jaunies
+2026-03-20,Stress hydrique,8,Humidité élevée
+2026-04-19,Risque maladie,4,Sol sec
+2026-03-02,Stress hydrique,8,Feuilles jaunies
+2026-03-02,Maladie détectée,5,Feuilles jaunies
+2026-03-01,OK,7,Humidité élevée
+2026-03-17,Stress hydrique,2,Humidité élevée
+2026-04-06,Maladie détectée,7,Feuilles jaunies
+2026-03-23,Risque maladie,9,Sol sec
+2026-03-28,OK,4,Humidité élevée
+2026-03-05,Stress hydrique,5,Rien à signaler
+2026-03-16,Risque maladie,8,Rien à signaler
+2026-03-22,OK,2,Humidité élevée
+2026-04-20,OK,3,Feuilles jaunies
+2026-03-05,Maladie détectée,10,Rien à signaler
+2026-04-13,OK,10,Rien à signaler
+2026-04-21,OK,7,Sol sec
+2026-04-18,Maladie détectée,10,Humidité élevée
+2026-03-04,OK,10,Rien à signaler
+2026-04-18,OK,7,Feuilles jaunies
+2026-03-09,Risque maladie,6,Sol sec
+2026-04-19,Maladie détectée,9,Humidité élevée
+2026-04-19,Stress hydrique,7,Feuilles jaunies
+2026-04-27,Maladie détectée,1,Humidité élevée
+2026-03-31,Risque maladie,4,Sol sec
+2026-04-07,OK,7,Sol sec
+2026-03-22,Stress hydrique,8,Feuilles jaunies
+2026-03-29,Risque maladie,7,Rien à signaler
+2026-04-07,Maladie détectée,3,Feuilles jaunies
+2026-04-06,Risque maladie,3,Feuilles jaunies
+2026-03-01,Maladie détectée,8,Feuilles jaunies
+2026-03-07,Maladie détectée,10,Feuilles jaunies
+2026-03-14,Risque maladie,1,Humidité élevée
+2026-04-15,Stress hydrique,6,Humidité élevée
+2026-04-23,OK,10,Humidité élevée
+2026-04-17,Risque maladie,3,Feuilles jaunies
+2026-03-07,Risque maladie,8,Humidité élevée
+2026-03-16,Risque maladie,8,Feuilles jaunies
+2026-03-19,Stress hydrique,6,Humidité élevée
+2026-03-14,Maladie détectée,4,Rien à signaler
+2026-04-28,Stress hydrique,5,Humidité élevée
+2026-03-21,Stress hydrique,3,Feuilles jaunies
+2026-03-05,Risque maladie,2,Humidité élevée
+2026-04-17,Risque maladie,10,Humidité élevée
+2026-03-22,Risque maladie,7,Rien à signaler
+2026-04-27,Stress hydrique,4,Rien à signaler
+2026-04-14,OK,8,Humidité élevée
+2026-04-22,Stress hydrique,7,Rien à signaler
+2026-04-03,Stress hydrique,3,Sol sec
+2026-03-12,Stress hydrique,7,Humidité élevée
+2026-03-26,Risque maladie,7,Feuilles jaunies
+2026-03-29,OK,8,Feuilles jaunies
+2026-04-13,OK,9,Feuilles jaunies
+2026-04-19,Maladie détectée,2,Rien à signaler
+2026-04-27,Stress hydrique,4,Rien à signaler
+2026-04-13,Risque maladie,6,Feuilles jaunies
+2026-03-29,OK,2,Sol sec
+2026-04-23,Risque maladie,4,Feuilles jaunies
+2026-03-30,Stress hydrique,6,Sol sec
+2026-04-17,Risque maladie,9,Humidité élevée
+2026-03-16,OK,1,Feuilles jaunies
+2026-03-20,Risque maladie,9,Humidité élevée
+2026-04-12,OK,6,Humidité élevée
+2026-03-06,Maladie détectée,7,Rien à signaler
+2026-03-13,OK,8,Humidité élevée
+2026-04-24,Maladie détectée,10,Sol sec
+2026-03-02,Stress hydrique,10,Feuilles jaunies
+2026-04-12,Stress hydrique,2,Rien à signaler
+2026-04-28,Maladie détectée,3,Sol sec
+2026-04-08,Stress hydrique,9,Humidité élevée
+2026-03-04,Stress hydrique,10,Humidité élevée
+2026-04-28,OK,1,Sol sec
+2026-03-27,Maladie détectée,9,Rien à signaler
+2026-04-24,Maladie détectée,3,Rien à signaler
+2026-03-07,Risque maladie,8,Feuilles jaunies
+2026-04-13,Maladie détectée,3,Sol sec
+2026-03-09,Maladie détectée,10,Rien à signaler
+2026-03-31,Risque maladie,9,Sol sec
+2026-03-28,Maladie détectée,3,Feuilles jaunies
+2026-03-28,Maladie détectée,8,Feuilles jaunies
+2026-03-02,Maladie détectée,6,Rien à signaler
+2026-04-11,Risque maladie,4,Rien à signaler
+2026-03-03,Risque maladie,5,Sol sec
+2026-03-05,OK,6,Rien à signaler
+2026-03-23,OK,3,Feuilles jaunies
+2026-03-01,Stress hydrique,3,Sol sec
+2026-04-27,OK,3,Rien à signaler
+2026-04-13,Maladie détectée,5,Sol sec
+2026-03-17,OK,2,Humidité élevée
+2026-04-01,Maladie détectée,9,Feuilles jaunies
+2026-03-15,Risque maladie,7,Rien à signaler
+2026-03-06,Maladie détectée,3,Rien à signaler
