@@ -1,0 +1,22 @@
+# Lancer le projet AgriSupApp
+
+## Prérequis
+- Node.js installé
+
+## Démarrage rapide
+```bash
+cd Backend
+npm install
+node import-csv.js
+node server.js
+Ouvrir http://localhost:3000
+
+Tests API
+http://localhost:3000/api/parcelles
+
+http://localhost:3000/api/observations
+
+http://localhost:3000/api/alertes
+
+Arrêt
+Ctrl+C dans le terminal

@@ -16,7 +16,6 @@
         }
     }
 
-    // ==================== DATA LOADERS ====================
     const loadParcels = async () => {
         const data = await apiFetch('/api/parcelles');
         if (!data) return [];
@@ -30,12 +29,7 @@
     };
 
     const saveParcel = async (parcel) => {
-        const body = {
-            nom: parcel.name,
-            localisation: parcel.location,
-            surface_ha: parcel.surface,
-            culture_type: parcel.culture
-        };
+        const body = { nom: parcel.name, localisation: parcel.location, surface_ha: parcel.surface, culture_type: parcel.culture };
         if (parcel.id && !parcel.id.startsWith('temp_')) {
             return await apiFetch('/api/parcelles/' + parcel.id, { method: 'PUT', body: JSON.stringify(body) });
         } else {
@@ -56,8 +50,8 @@
             id: o.id.toString(),
             parcelId: o.parcelle_id ? o.parcelle_id.toString() : '',
             date: o.date || '',
-            temperature: 0,
-            humidity: 0,
+            temperature: o.temperature || 0,
+            humidity: o.humidite || 0,
             notes: o.commentaire || o.etat || '',
             etat: o.etat || ''
         }));
@@ -68,7 +62,9 @@
             date: obs.date,
             etat: obs.notes || obs.etat || 'OK',
             parcelle_id: parseInt(obs.parcelId),
-            commentaire: obs.notes || ''
+            commentaire: obs.notes || '',
+            temperature: parseFloat(obs.temperature) || 0,
+            humidite: parseInt(obs.humidity) || 0
         };
         const result = await apiFetch('/api/observations', { method: 'POST', body: JSON.stringify(body) });
         if (result && result.id) obs.id = result.id.toString();
@@ -96,7 +92,6 @@
         }));
     };
 
-    // ==================== STATE ====================
     let parcels = [], observations = [], alerts = [];
     let currentPage = 'dashboard', pendingDelete = null;
 
@@ -109,7 +104,6 @@
         setTimeout(() => t.remove(), 3000);
     }
 
-    // ==================== NAVIGATION ====================
     function navigateTo(page) {
         currentPage = page;
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -130,13 +124,11 @@
     async function refreshAll() {
         parcels = await loadParcels();
         observations = await loadObs();
-        const dbAlerts = await loadAlerts();
-        alerts = dbAlerts;
+        alerts = await loadAlerts();
         document.getElementById('parcelCountBadge').textContent = parcels.length;
-        const dangerCount = alerts.filter(a => a.type === 'danger').length;
-        const badge = document.getElementById('alertCountBadge');
-        badge.style.display = dangerCount > 0 ? 'inline' : 'none';
-        badge.textContent = dangerCount;
+        const d = alerts.filter(a => a.type === 'danger').length;
+        document.getElementById('alertCountBadge').style.display = d > 0 ? 'inline' : 'none';
+        document.getElementById('alertCountBadge').textContent = d;
         updateWelcomeBanner();
         if (currentPage === 'dashboard') renderDashboard();
         if (currentPage === 'parcelles') renderParcels();
@@ -150,32 +142,36 @@
             (h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir') + ', bienvenue sur AgriSupApp';
         document.getElementById('welcomeDate').textContent =
             now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        document.getElementById('welcomeMiniStats').innerHTML = `
-            <div class="welcome-mini-stat"><div class="mini-val">${parcels.length}</div><div class="mini-lbl">Parcelles</div></div>
-            <div class="welcome-mini-stat"><div class="mini-val">${observations.length}</div><div class="mini-lbl">Observations</div></div>
-            <div class="welcome-mini-stat"><div class="mini-val">${alerts.filter(a=>a.type==='danger').length}</div><div class="mini-lbl">Alertes</div></div>
-        `;
     }
 
-    // ==================== RENDER ====================
     function renderDashboard() {
         const dangerCount = alerts.filter(a => a.type === 'danger').length;
+        const avgTemp = observations.length ? (observations.reduce((s, o) => s + parseFloat(o.temperature), 0) / observations.length).toFixed(1) : '--';
+        const avgHum = observations.length ? Math.round(observations.reduce((s, o) => s + parseFloat(o.humidity), 0) / observations.length) : '--';
         document.getElementById('dashboardStats').innerHTML = `
             <div class="stat-card"><div class="stat-icon emerald">🌍</div><div class="stat-info"><div class="stat-value">${parcels.length}</div><div class="stat-label">Parcelles</div></div></div>
             <div class="stat-card"><div class="stat-icon blue">📝</div><div class="stat-info"><div class="stat-value">${observations.length}</div><div class="stat-label">Observations</div></div></div>
-            <div class="stat-card"><div class="stat-icon ${dangerCount>0?'red':'emerald'}">⚠️</div><div class="stat-info"><div class="stat-value">${dangerCount}</div><div class="stat-label">Risques critiques</div></div></div>
-            <div class="stat-card"><div class="stat-icon amber">🌡️</div><div class="stat-info"><div class="stat-value">--°C</div><div class="stat-label">Temp. moyenne</div></div></div>
-            <div class="stat-card"><div class="stat-icon blue">💧</div><div class="stat-info"><div class="stat-value">--%</div><div class="stat-label">Humidité moyenne</div></div></div>
+            <div class="stat-card"><div class="stat-icon ${dangerCount>0?'red':'emerald'}">⚠️</div><div class="stat-info"><div class="stat-value">${dangerCount}</div><div class="stat-label">Risques</div></div></div>
+            <div class="stat-card"><div class="stat-icon amber">🌡️</div><div class="stat-info"><div class="stat-value">${avgTemp}°C</div><div class="stat-label">Temp. moyenne</div></div></div>
+            <div class="stat-card"><div class="stat-icon blue">💧</div><div class="stat-info"><div class="stat-value">${avgHum}%</div><div class="stat-label">Humidité moyenne</div></div></div>
         `;
-        document.getElementById('barChart').innerHTML = parcels.length === 0
-            ? '<div class="empty-state"><p>Données chargées depuis la base.</p></div>'
-            : parcels.map(p => `<div class="bar-col"><div class="bar-value">${observations.filter(o=>o.parcelId===p.id).length}</div><div class="bar-fill" style="height:${Math.max(6,observations.filter(o=>o.parcelId===p.id).length*20)}px;background:#68a578;"></div><div class="bar-label">${p.name.substring(0,8)}</div></div>`).join('');
+        const barDiv = document.getElementById('barChart');
+        if (parcels.length === 0) barDiv.innerHTML = '<div class="empty-state"><p>Aucune parcelle.</p></div>';
+        else {
+            const counts = {}; parcels.forEach(p => counts[p.id] = 0);
+            observations.forEach(o => { if (counts[o.parcelId] !== undefined) counts[o.parcelId]++; });
+            const max = Math.max(1, ...Object.values(counts));
+            barDiv.innerHTML = parcels.map(p => {
+                const c = counts[p.id] || 0;
+                return `<div class="bar-col"><div class="bar-value">${c}</div><div class="bar-fill" style="height:${Math.max(6,(c/max)*140)}px;background:#68a578;"></div><div class="bar-label">${p.name.substring(0,8)}</div></div>`;
+            }).join('');
+        }
         const recent = [...observations].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 6);
         document.getElementById('timelineObs').innerHTML = recent.length
-            ? recent.map(o => `<div class="timeline-item"><div class="tl-date">${o.date}</div><strong>${parcels.find(p=>p.id===o.parcelId)?.name||'—'}</strong> · ${o.notes}</div>`).join('')
-            : '<div class="empty-state"><p>Observations chargées depuis la base.</p></div>';
+            ? recent.map(o => `<div class="timeline-item"><div class="tl-date">${o.date}</div><strong>${parcels.find(p=>p.id===o.parcelId)?.name||'—'}</strong> · ${o.temperature}°C · ${o.humidity}%<br><small>${o.notes}</small></div>`).join('')
+            : '<div class="empty-state"><p>Aucune observation.</p></div>';
         document.getElementById('dashboardRisks').innerHTML = alerts.length
-            ? alerts.slice(0, 6).map(a => `<div class="alert-banner ${a.type==='danger'?'danger':a.type==='warning'?'warning':'info'}"><span>${a.icon}</span><div><strong>${a.title}</strong> — ${a.parcelName} (${a.culture})<br><small>${a.description}</small></div></div>`).join('')
+            ? alerts.slice(0, 6).map(a => `<div class="alert-banner ${a.type}"><span>${a.icon}</span><div><strong>${a.title}</strong> — ${a.parcelName}<br><small>${a.description}</small></div></div>`).join('')
             : '<div class="empty-state"><div class="empty-icon">✅</div><p>Aucune alerte.</p></div>';
     }
 
@@ -206,13 +202,21 @@
     function renderObservations(filter = '') {
         const tbody = document.getElementById('observationsTableBody'), empty = document.getElementById('obsEmpty');
         let sorted = [...observations].sort((a, b) => new Date(b.date) - new Date(a.date));
-        if (filter) { const q = filter.toLowerCase(); sorted = sorted.filter(o => o.notes.toLowerCase().includes(q) || (parcels.find(p=>p.id===o.parcelId)?.name||'').toLowerCase().includes(q)); }
+        if (filter) { const q = filter.toLowerCase(); sorted = sorted.filter(o => (parcels.find(p=>p.id===o.parcelId)?.name||'').toLowerCase().includes(q) || o.notes.toLowerCase().includes(q)); }
         if (sorted.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); }
         else {
             empty.classList.add('hidden');
             tbody.innerHTML = sorted.map(o => {
                 const p = parcels.find(pp => pp.id === o.parcelId);
-                return `<tr><td>${o.date}</td><td><strong>${p?.name||'—'}</strong> <span class="badge badge-info">${p?.culture||''}</span></td><td>--</td><td>--</td><td>${o.notes||'—'}</td><td><button class="btn btn-xs btn-ghost" onclick="window._deleteObs('${o.id}')" style="color:#dc2626;">🗑️</button></td></tr>`;
+                const t = parseFloat(o.temperature), hu = parseFloat(o.humidity);
+                return `<tr>
+                    <td>${o.date}</td>
+                    <td><strong>${p?.name||'—'}</strong> <span class="badge badge-info">${p?.culture||''}</span></td>
+                    <td><span class="badge ${t>30?'badge-danger':t<5?'badge-warning':'badge-success'}">${o.temperature}°C</span></td>
+                    <td><span class="badge ${hu>80?'badge-danger':hu<30?'badge-warning':'badge-success'}">${o.humidity}%</span></td>
+                    <td>${o.notes||'—'}</td>
+                    <td><button class="btn btn-xs btn-ghost" onclick="window._deleteObs('${o.id}')" style="color:#dc2626;">🗑️</button></td>
+                </tr>`;
             }).join('');
         }
     }
@@ -220,20 +224,15 @@
     function renderAlerts() {
         const list = document.getElementById('alertsList'), empty = document.getElementById('alertsEmpty');
         if (alerts.length === 0) { list.innerHTML = ''; empty.classList.remove('hidden'); }
-        else {
-            empty.classList.add('hidden');
-            list.innerHTML = alerts.map(a => `<div class="alert-banner ${a.type==='danger'?'danger':a.type==='warning'?'warning':'info'}"><span>${a.icon}</span><div><strong>${a.title}</strong> — ${a.parcelName} (${a.culture})<br><small>${a.description} · ${a.date}</small></div></div>`).join('');
-        }
+        else empty.classList.add('hidden'); list.innerHTML = alerts.map(a => `<div class="alert-banner ${a.type}"><span>${a.icon}</span><div><strong>${a.title}</strong> — ${a.parcelName}<br><small>${a.description} · ${a.date}</small></div></div>`).join('');
     }
 
-    // ==================== MODALS ====================
     function openModalParcel(id = null) {
         document.getElementById('formParcel').reset(); document.getElementById('parcelId').value = '';
         if (id) { const p = parcels.find(pp => pp.id === id); if (p) { document.getElementById('parcelId').value = p.id; document.getElementById('parcelName').value = p.name; document.getElementById('parcelLocation').value = p.location; document.getElementById('parcelSurface').value = p.surface; document.getElementById('parcelCulture').value = p.culture; } }
         document.getElementById('modalParcel').classList.remove('hidden');
     }
     function closeParcelModal() { document.getElementById('modalParcel').classList.add('hidden'); }
-
     document.getElementById('formParcel').addEventListener('submit', async e => {
         e.preventDefault();
         const id = document.getElementById('parcelId').value;
@@ -248,17 +247,19 @@
         document.getElementById('modalObs').classList.remove('hidden');
     }
     function closeObsModal() { document.getElementById('modalObs').classList.add('hidden'); }
-
     document.getElementById('formObs').addEventListener('submit', async e => {
         e.preventDefault();
-        const parcelId = document.getElementById('obsParcel').value, date = document.getElementById('obsDate').value, notes = document.getElementById('obsNotes').value.trim();
+        const parcelId = document.getElementById('obsParcel').value, date = document.getElementById('obsDate').value;
+        const temperature = parseFloat(document.getElementById('obsTemp').value) || 0;
+        const humidity = parseInt(document.getElementById('obsHumidity').value) || 0;
+        const notes = document.getElementById('obsNotes').value.trim();
         if (!parcelId || !date) return showToast('Champs obligatoires.', 'error');
-        await saveObs({ id: 'temp_' + Date.now(), parcelId, date, notes }); closeObsModal(); await refreshAll(); showToast('Observation enregistrée.');
+        await saveObs({ id: 'temp_' + Date.now(), parcelId, date, temperature, humidity, notes });
+        closeObsModal(); await refreshAll(); showToast('Observation enregistrée.');
     });
 
     function openConfirm(type, id, msg) { pendingDelete = { type, id }; document.getElementById('confirmMsg').textContent = msg; document.getElementById('modalConfirm').classList.remove('hidden'); }
-    function closeConfirm() { document.getElementById('modalConfirm').classList.add('hidden'); pendingDelete = null; }
-
+    function closeConfirm() { document.getElementById('modalConfirm').classList.add('hidden'); }
     document.getElementById('confirmDelete').addEventListener('click', async () => {
         if (!pendingDelete) return;
         if (pendingDelete.type === 'parcel') await deleteParcelDB(pendingDelete.id);
@@ -271,9 +272,7 @@
     window._addObs = id => openModalObs(id);
     window._deleteObs = id => openConfirm('obs', id, 'Supprimer cette observation ?');
     window._viewObs = id => { navigateTo('observations'); };
-    window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); };
 
-    // ==================== EVENT LISTENERS ====================
     document.querySelectorAll('.sidebar-nav button[data-page]').forEach(b => b.addEventListener('click', () => navigateTo(b.dataset.page)));
     document.getElementById('btnAddParcel')?.addEventListener('click', () => openModalParcel());
     document.getElementById('btnAddParcel2')?.addEventListener('click', () => openModalParcel());
@@ -287,10 +286,8 @@
     document.getElementById('cancelConfirm')?.addEventListener('click', closeConfirm);
     document.getElementById('searchInput')?.addEventListener('input', e => { if (currentPage === 'parcelles') renderParcels(e.target.value); if (currentPage === 'observations') renderObservations(e.target.value); });
 
-    // Init
     (async () => {
         await refreshAll();
-        updateWelcomeBanner();
-        console.log('✅ AgriSupApp prêt —', parcels.length, 'parcelles,', observations.length, 'observations,', alerts.length, 'alertes');
+        console.log('✅ AgriSupApp prêt');
     })();
 })();
